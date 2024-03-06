@@ -1,7 +1,7 @@
 mysqlConfig = {
     connectionLimit : 100, 
     host     : '127.0.0.1',
-    user: "sa",
+    user: "root",
     password: "123456",
     port     : 3306,
     database : 'xcaliber',
