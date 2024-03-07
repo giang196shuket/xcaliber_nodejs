@@ -1,24 +1,11 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-    <head>
-        <%- include("header.ejs") %>
-        <%- include("header-link.ejs") %>
+  <head>
+    <%- include("header.ejs") %> <%- include("header-script.ejs") %> <%-style %>
+  </head>
 
-        <%-style %>
-    </head>
-   
-    <body class="container">
-        <%- include("menu.ejs") %>
-
-        <%-content %>
-
-        <%- include("content-script.ejs") %>
-
-        <%- include("footer.ejs") %>
-
-        <%-script %>
-
-    </body>
-
-
+  <body class="container">
+    <%- include("menu.ejs") %> <%-content %> <%- include("footer.ejs") %> <%-
+    include("content-script.ejs") %> <%-script %>
+  </body>
 </html>

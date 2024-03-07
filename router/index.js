@@ -11,15 +11,15 @@ router.get('/', function(req, res){
 })
 
 
-router.get('/introduce', function(req, res){
-    res.render("partials/introduce", {
+router.get('/intro', function(req, res){
+    res.render("partials/intro", {
         layout: "layouts/mobile/default",
         title:"XCALIBER"
     });
 })
 
 
-router.get('/clinic', function(req, res){
+router.get('/search-clinic', function(req, res){
     res.render("partials/clinic", {
         layout: "layouts/mobile/default",
         title:"XCALIBER"
@@ -27,8 +27,8 @@ router.get('/clinic', function(req, res){
 })
 
 
-router.get('/news', function(req, res){
-    res.render("partials/news", {
+router.get('/notice', function(req, res){
+    res.render("partials/notice", {
         layout: "layouts/mobile/default",
         title:"XCALIBER"
     });

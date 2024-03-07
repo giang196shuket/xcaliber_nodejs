@@ -8,8 +8,10 @@ const logger = require("morgan");
 const cors = require("cors");
 const dotenv = require("dotenv");
 dotenv.config({ path: "./config/config.env" });
+var compression = require('compression')
 
 const app = express()
+app.use(compression())
 
 app.use(
     express.json({

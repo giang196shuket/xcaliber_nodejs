@@ -1,33 +1,77 @@
 <%- contentFor('style') %> 
 <%- contentFor('content') %>
-<div id="map" style="width: 100%; height: 720px"></div>
-<button onclick="getUserCurrentPosition()">GET CURRENT LOCATION</button>
+<ul class="nav nav-tabs">
+  <li class="nav-item">
+    <a class="nav-link active" data-toggle="tab" href="#map-tab">MAP</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" data-toggle="tab" href="#area-tab" onclick="fetchArea()">AREA</a>
+  </li>
+</ul>
+
+<div class="container-fluid">
+  <div class="tab-content">
+    <div role="tabpanel" class="tab-pane  in active" id="map-tab">
+      <div id="box-search">
+        <div class="input-group">
+          <input type="text" id="search-keyword" onkeyup="inputClinic()" onpaste="inputClinic(event)"  class="form-control" />
+          <div class="input-group-btn">
+            <button class="btn btn-default" type="submit" onclick="handleSearch()">
+              <i class="fa fa-search fa-lg"></i> 
+            </button>
+          </div>
+        </div>
+        <div id="result-search" ></div>
+      </div>
+      
+      <div id="box-map">
+        <div id="map" style="width: 100%; height: 720px" class="mt-3"></div>
+        <button class="btn btn-info" id="btn-position" onclick="getUserCurrentPosition()">GET CURRENT LOCATION</button>
+      </div>
+    </div>
+    <div role="tabpanel" class="tab-pane " id="area-tab">
+      <div class="d-flex" style="gap: 30px;">
+        <div id="area1" style="width: 35%; height: 30rem; overflow-y: scroll; text-align: center;">
+
+        </div>
+        <div id="area2" style="width: 35%; height: 30rem; overflow-y: scroll; text-align: center;">
+
+        </div>
+        <div id="address"  style="width: 35%; height: 30rem; overflow-y: scroll; text-align: center;">
+
+        </div>
+      </div>
+       
+    </div>
+  </div>
+</div>
+
+
 
 <%- contentFor('script') %>
 
 <script>
-  let hospitals_data = [];
-  let hospitalClicked = 628;
+  let hospitalsData = [];
+  let area1Default = null
+  let area2Default = null
 
   window.onpageshow = async function (event) {
     if (event.persisted) {
     }
   };
   document.addEventListener("DOMContentLoaded", async function () {
-    hospitals_data = await getHospitalList();
-    console.log("hospitals_data", hospitals_data.length);
+    hospitalsData = await getHospitalList();
     var mapOptions = {
       center: new naver.maps.LatLng(37.3595704, 127.105399),
-      zoom: 10,
+      zoom: 14,
     };
 
     var map = new naver.maps.Map("map", mapOptions);
-    for (const hospital of hospitals_data) {
-      console.log(hospital);
-      var hospital_location = new naver.maps.LatLng(hospital.lat, hospital.lng);
+    for (const hospital of hospitalsData) {
+      var position = new naver.maps.LatLng(hospital.lat, hospital.lng);
 
       var marker = new naver.maps.Marker({
-        position: hospital_location,
+        position: position,
         map: map,
 
         icon: {
@@ -49,17 +93,153 @@
           element.style.display = "none";
         });
         // display block for element current
-        const hospitalElement = document.getElementById(
+        let hospitalElement = document.getElementById(
           `hospital-${hospital.id}`
         );
+        console.log('hospitalElement', hospitalElement);
+
         hospitalElement.style.display = "block";
-        hospitalClicked = hospital.address;
       });
     }
   });
 
+  let processSearch = false;
+
+  const handleSearch = async () =>{
+    //catch click dup
+    if (processSearch == true) return;
+    processSearch = true;
+
+    const keyword = document.getElementById("search-keyword").value
+    if(keyword === ""){
+      return
+    }
+    //search  서울 
+    // const result = await searchHospital(keyword)
+    const result = hospitalsData.find((hos) => hos.address.trim() === keyword.trim())
+    if(result){
+      //reset clicked location
+      var elements = document.querySelectorAll('[id^="hospital"]');
+        elements.forEach(function (element) {
+          element.style.display = "none";
+        });
+
+      var mapOptions = {
+      center: new naver.maps.LatLng(result.lat, result.lng),
+      zoom: 14,
+    };
+
+    var map = new naver.maps.Map("map", mapOptions);
+    for (const hospital of hospitalsData) {
+      var position = new naver.maps.LatLng(hospital.lat, hospital.lng);
+
+      var content = ( hospital.lat === result.lat &&   hospital.lng === result.lng ) ?
+      `<div>  <img src="/assets/images/custom_marker.png" style=" display: block;">
+            <p id="hospital-${hospital.id}" style="background-color: white; display: block; padding: 5px; border-radius: 10px;
+            border: 1px solid black;
+            ">${hospital.address}<p/></div> `
+      : `<div>  <img src="/assets/images/custom_marker.png" style=" display: block;">
+            <p id="hospital-${hospital.id}" style="background-color: white; display: none; padding: 5px; border-radius: 10px;
+            border: 1px solid black;
+            ">${hospital.address}<p/></div> `
+
+      var marker = new naver.maps.Marker({
+        position: position,
+        map: map,
+        icon: {
+          content: content,
+          size: new naver.maps.Size(63, 81),
+          origin: new naver.maps.Point(0, 0),
+          anchor: new naver.maps.Point(31, 40),
+        },
+      });
+
+      marker.addListener("click", function () {
+        // find all element clicked => display none
+        var elements = document.querySelectorAll('[id^="hospital"]');
+        elements.forEach(function (element) {
+          console.log(element.id);
+          if(element.id === `hospital-${hospital.id}` ){
+            element.style.display = "block";
+          }else{
+            element.style.display = "none";
+          }
+        });
+
+      });
+    }
+    }
+    processSearch = false;
+
+  }
+
+  const clickResult = (address) =>{
+    document.getElementById("search-keyword").value = address
+   // reset box result
+   let resultDataEle = document.getElementById("result-search")
+    resultDataEle.innerHTML = ""
+    resultDataEle.style.display = 'none'
+  }
+
+  const  inputClinic =  async (event) =>{
+    // reset box result
+    let resultDataEle = document.getElementById("result-search")
+    resultDataEle.innerHTML = ""
+    resultDataEle.style.display = 'none'
+
+    let keyword = document.getElementById("search-keyword").value;
+
+    if(event){
+      // paste keyword
+      let clipboardData = event.clipboardData || window.clipboardData;
+      let pastedData = clipboardData.getData('text');
+      keyword += pastedData
+    }
+    if(keyword === ""){
+      return
+    }
+    const result = await getHospitalListSearch(keyword)
+    let HTML = ""
+    if(result.length > 0){
+      for (let data of result) {
+        HTML += `                    
+        <p id='row-search' onclick="clickResult('${data.address}')">${data.address} </p>
+        `;
+        
+      }
+    // assign again box result
+    document.getElementById("result-search").innerHTML = HTML;
+    resultDataEle.style.display = 'block'
+    }
+  }
+  const searchHospital = async (keyword) => {
+    let callApi = `/api/main/searchHospital`;
+    const result = await axios
+      .post(callApi, {keyword: keyword})
+      .then((response) => {
+        return response.data.data;
+      })
+      .catch((error) => {
+        return null;
+      });
+    return result;
+  };
+
+  const getHospitalListSearch = async (keyword) => {
+    let callApi = `/api/main/getHospitalListSearch`;
+    const result = await axios
+      .post(callApi, {keyword: keyword})
+      .then((response) => {
+        return response.data.data;
+      })
+      .catch((error) => {
+        return null;
+      });
+    return result;
+  };
+
   const getHospitalList = async () => {
-    let callApi = `/api/home/getHospitalList`;
+    let callApi = `/api/main/getHospitalList`;
     const result = await axios
       .post(callApi, {})
       .then((response) => {
@@ -79,12 +259,197 @@
 }
 
 function onSuccessGeolocation(position) {
-  console.log(position)
   var mapOptions = {
       center: new naver.maps.LatLng(position.coords.latitude,position.coords.longitude),
       zoom: 10,
     };
 
     var map = new naver.maps.Map("map", mapOptions);
+    for (const hospital of hospitalsData) {
+      var position = new naver.maps.LatLng(hospital.lat, hospital.lng);
+
+      var marker = new naver.maps.Marker({
+        position: position,
+        map: map,
+
+        icon: {
+          content: `
+          <div>  <img src="/assets/images/custom_marker.png" style=" display: block;">
+            <p id="hospital-${hospital.id}" style="background-color: white; display: none; padding: 5px; border-radius: 10px;
+            border: 1px solid black;
+            ">${hospital.address}<p/></div> `,
+          size: new naver.maps.Size(63, 81),
+          origin: new naver.maps.Point(0, 0),
+          anchor: new naver.maps.Point(31, 40),
+        },
+      });
+
+      marker.addListener("click", function () {
+        // find all element clicked => display none
+        var elements = document.querySelectorAll('[id^="hospital"]');
+        elements.forEach(function (element) {
+          element.style.display = "none";
+        });
+        // display block for element current
+        let hospitalElement = document.getElementById(
+          `hospital-${hospital.id}`
+        );
+        console.log('hospitalElement', hospitalElement);
+
+        hospitalElement.style.display = "block";
+      });
+    }
+
 }
+
+//area 
+const changeArea2 = async (id, area2) =>{
+  console.log('asdasd');
+  var elements = document.querySelectorAll('[id^="area2"]');
+      elements.forEach(function (element) {
+      if(element.id === `area2-${id}` ){
+        element.classList.remove("text-dark");
+        element.classList.add("text-primary");
+      }else{
+        element.classList.remove("text-primary");
+      }
+  });
+
+     //address 
+     document.getElementById("address").innerHTM = "" //reset
+     area2Default = area2
+
+     const result3 = await getAddress(area1Default, area2Default)
+      console.log('result3', result3);
+
+      let HTML3 = "";
+      if(result3.length > 0){
+      for (const data3 of result3) {
+        HTML3 += `                    
+              <div style="width:100%">
+                <p>${data3.hospital_name}<p>
+                <p>${data3.address}<p>
+                <a target="_blank" href="${data3.naver_link}" ">OPEN NAVER MAP</a>
+                <hr/>
+              </div>`;
+      }
+      document.getElementById("address").innerHTML = HTML3;
+      }
+}
+const changeArea1 = async (id, area1) =>{
+
+  var elements = document.querySelectorAll('[id^="area1"]');
+      elements.forEach(function (element) {
+      if(element.id === `area1-${id}` ){
+        element.classList.remove("text-dark");
+        element.classList.add("text-primary");
+      }else{
+        element.classList.remove("text-primary");
+      }
+  });
+
+   //area2
+   document.getElementById("area2").innerHTM = "" //reset
+   area1Default = area1
+
+   const result2 = await getArea2(area1Default)
+      let HTML2 = "";
+      if(result2.length > 0){
+      area2Default = result2[0].area2 // set default
+      for (const data2 of result2) {
+        HTML2 += `                    
+              <p  style="cursor:pointer" id="area2-${data2.id}"  class='${area2Default === data2.area2 ? 'text-primary' : 'text-dark'}' onclick="changeArea2('${data2.id}','${data2.area2}')">${data2.area2}<p>`;
+      }
+      document.getElementById("area2").innerHTML = HTML2;
+   }
+}
+
+
+
+
+const fetchArea = async () =>{
+  //area1
+   const result1 = await getArea1()
+   console.log('result1', result1);
+
+   let HTML1 = "";
+   if(result1.length > 0){
+      area1Default = result1[0].area1 // set default
+      for (const data1 of result1) {
+        HTML1 += `                    
+              <p style="cursor:pointer" id="area1-${data1.id}" class='${area1Default === data1.area1 ? 'text-primary' : 'text-dark'}' onclick="changeArea1('${data1.id}','${data1.area1}')" >${data1.area1}<p>`;
+      }
+      document.getElementById("area1").innerHTML = HTML1;
+      //area2
+      const result2 = await getArea2(area1Default)
+      console.log('result2', result2);
+
+      let HTML2 = "";
+      if(result2.length > 0){
+      area2Default = result2[0].area2 // set default
+      for (const data2 of result2) {
+        HTML2 += `                    
+              <p  style="cursor:pointer" id="area2-${data2.id}"  class='${area2Default === data2.area2 ? 'text-primary' : 'text-dark'}' onclick="changeArea1('${data2.id}','${data2.area2}')" >${data2.area2}<p>`;
+      }
+      document.getElementById("area2").innerHTML = HTML2;
+      
+      //address 
+      const result3 = await getAddress(area1Default, area2Default)
+      console.log('result3', result3);
+
+      let HTML3 = "";
+      if(result3.length > 0){
+      for (const data3 of result3) {
+        HTML3 += `                    
+              <div style="width:100%">
+                <p>${data3.hospital_name}<p>
+                <p>${data3.address}<p>
+                <a target="_blank" href="${data3.naver_link}" ">OPEN NAVER MAP</a>
+                <hr/>
+              </div>`;
+      }
+      document.getElementById("address").innerHTML = HTML3;
+      }
+    }
+   }
+}
+
+const getArea1 = async () => {
+    let callApi = `/api/main/getArea1`;
+    const result = await axios
+      .post(callApi, {})
+      .then((response) => {
+        return response.data.data;
+      })
+      .catch((error) => {
+        return [];
+      });
+    return result;
+  };
+  const getArea2 = async (area1) => {
+    let callApi = `/api/main/getArea2`;
+    const result = await axios
+      .post(callApi, {area1: area1})
+      .then((response) => {
+        return response.data.data;
+      })
+      .catch((error) => {
+        return [];
+      });
+    return result;
+  };
+  const getAddress = async (area1, area2) => {
+    let callApi = `/api/main/getAddress`;
+    const result = await axios
+      .post(callApi, {area1: area1, area2: area2})
+      .then((response) => {
+        return response.data.data;
+      })
+      .catch((error) => {
+        return [];
+      });
+    return result;
+  };
+
+
 </script>

@@ -1,0 +1,37 @@
+
+/* search */
+#box-search{
+    width: 100%;
+    position: relative;
+    margin-top: 10px;
+}
+#result-search{
+    position: absolute;
+    z-index: 1;
+    width: 100%;
+    background-color: white;
+    color: black;
+    padding: 5px;
+    display: none;
+}
+#row-search{
+    cursor: pointer;
+    border-radius: 5px;
+    padding: 5px;
+}
+#row-search:hover{
+    background-color: gainsboro;
+}
+
+/* map */
+
+#box-map{
+    position: relative;
+    width: 100%;
+}
+
+#btn-position{
+    position: absolute;
+    bottom: 5%;
+    right: 1%;
+}

@@ -1,8 +1,154 @@
-<%- contentFor('style') %> 
-<%- contentFor('content') %>
-<p>faq</p>
+<%- contentFor('style') %> <%- contentFor('content') %>
+<div id="cate-faq-list"></div>
+<table class="table table-sm table-bordered table-hover">
+  <tbody id="faq-list"></tbody>
+</table>
+<nav aria-label="Page navigation">
+  <ul class="pagination justify-content-center" id="faq-list-pager"></ul>
+</nav>
 <%- contentFor('script') %>
 
 <script>
-  
+  const rowCount = 10;
+  let currentPage = 1;
+  let category = 0
+  let categories = []
+
+  window.onpageshow = async function (event) {
+    if (event.persisted) {
+    }
+  };
+  document.addEventListener("DOMContentLoaded", async function () {
+    await getFaqAndCateList(currentPage);
+  });
+
+  const  changeCategory = async (id) =>{
+    //reset data
+    currentPage = 1
+    document.getElementById("cate-faq-list").innerHTML = "";
+    document.getElementById("faq-list").innerHTML = "";
+    document.getElementById("faq-list-pager").innerHTML = "";
+
+    //  assign categories again when change category
+    category = id 
+    let HTML_CATE = ` <button class="btn ${category === 0 ? 'btn-primary' : 'btn-info'}" onclick={changeCategory(0)}>ALL</button> `;
+    for (let cate of categories) {
+      HTML_CATE += `                    
+      <button class="btn ${category === cate.id ? 'btn-primary' : 'btn-info'}" onclick={changeCategory(${cate.id})}>${cate.name} </button>`;
+    }
+    document.getElementById("cate-faq-list").innerHTML = HTML_CATE;
+
+    // assign faq list again when change category
+    const result = await getFaqByCategory(currentPage, rowCount, id);
+    let HTML = "";
+    if (result.count > 0) {
+          let num = result.count - (currentPage - 1) * rowCount;
+          for (let data of result.rows) {
+            HTML += `                    
+              <tr>
+                  <td style="width:20%">${data.cateName}</td>
+                  <td>
+                    <a class="active" style="cursor: pointer" data-toggle="collapse" data-target="#${data.id}" 
+                    aria-expanded="true" aria-controls="${data.id}">
+                        ${data.q}
+                    </a>
+                    </td>
+                  </tr>
+                  <tr> 
+                    <td></td>
+                    <td>
+                      <div id="${data.id}" class="collapse" aria-labelledby="headingOne" data-parent="#faq-list">
+                         <div class="card-body">
+                            ${data.a}
+                          </div>
+                        </div>  
+                      </td>
+                </tr>`;
+          }
+        }
+        
+        document.getElementById("faq-list").innerHTML = HTML;
+        let pagerHTML = createPagerHTML(
+          result.count,
+          rowCount,
+          currentPage,
+          5,
+          "changePageMain"
+        );
+        document.getElementById("faq-list-pager").innerHTML = pagerHTML;
+
+  }
+
+  const getFaqByCategory = async () => {
+    let callApi = `/api/main/getFaqByCategory`;
+    const result = await axios
+      .post(callApi, {page: currentPage, rowCount: rowCount, category: category})
+      .then((response) => {
+        return response.data.data;
+      })
+      .catch((error) => {
+        return [];
+      });
+    return result;
+  };
+
+  const getFaqAndCateList = async (page) => {
+    let callApi = `/api/main/getFaqAndCateList`;
+    await axios
+      .post(callApi, { page: currentPage, rowCount: rowCount })
+      .then((response) => {
+        categories = response.data.data.categories // save categories  list
+        let HTML_CATE = ` <button class="btn  btn-primary" onclick={changeCategory(0)}>ALL</button> `;
+        for (let cate of response.data.data.categories) {
+          HTML_CATE += ` <button class="btn btn-info" onclick={changeCategory(${cate.id})}>${cate.name} </button>`;
+        }
+        document.getElementById("cate-faq-list").innerHTML = HTML_CATE;
+
+        let HTML = "";
+        if (response.data.data.count > 0) {
+          let num = response.data.data.count - (page - 1) * rowCount;
+          for (let data of response.data.data.rows) {
+            HTML += `                    
+                        <tr>
+                            <td style="width:20%">${data.cateName}</td>
+                            <td>
+                              <a class="active" style="cursor: pointer" data-toggle="collapse" data-target="#${data.id}" aria-expanded="true" aria-controls="${data.id}">
+                                 ${data.q}
+                              </a>
+                           </td>
+                        </tr>
+                        <tr> 
+                          <td></td>
+                          <td>
+                            <div id="${data.id}" class="collapse" aria-labelledby="headingOne" data-parent="#faq-list">
+                                <div class="card-body">
+                                    ${data.a}
+                                </div>
+                           </div>  
+                          </td>
+                        </tr>`;
+          }
+        }
+
+        document.getElementById("faq-list").innerHTML = HTML;
+        let pagerHTML = createPagerHTML(
+          response.data.data.count,
+          rowCount,
+          page,
+          5,
+          "changePageMain"
+        );
+        document.getElementById("faq-list-pager").innerHTML = pagerHTML;
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  function changePageMain(page, rowPerPage) {
+    document.getElementById("faq-list").innerHTML = "";
+    document.getElementById("faq-list-pager").innerHTML = "";
+    currentPage = page;
+    getFaqAndCateList(page);
+  }
 </script>
