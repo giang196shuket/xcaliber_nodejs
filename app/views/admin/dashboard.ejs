@@ -1,0 +1,43 @@
+<%- contentFor('style') %> <%- contentFor('content') %>
+<div class="row pt-5 justify-content-md-center">
+    <div class="col-md-2">
+        <div class="card">
+            <div class="card-body text-center">
+                <h4 class="card-title">XCALIBER</h4>
+                <h6 class="card-subtitle font-14 text-muted mt-2">Clinic management</h6>
+            </div>            
+            <div class="card-body text-center">
+                <button class="btn btn-sm btn-primary" onclick="go('/clinic')">관리하기</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <div class="card">
+            <div class="card-body text-center">
+                <h4 class="card-title">XCALIBER</h4>
+                <h6 class="card-subtitle font-14 text-muted mt-2">FAQ management</h6>
+            </div>            
+            <div class="card-body text-center">
+                <button class="btn btn-sm btn-primary" onclick="go('/faq')">관리하기</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card">
+            <div class="card-body text-center">
+                <h4 class="card-title">XCALIBER</h4>
+                <h6 class="card-subtitle font-14 text-muted mt-2">Notice management</h6>
+            </div>            
+            <div class="card-body text-center">
+                <button class="btn btn-sm btn-primary" onclick="go('/notice')">관리하기</button>
+            </div>
+        </div>
+    </div>
+</div>
+<%- contentFor('script') %>
+<script>
+    const go = (url) => {
+        self.location = "/xcaliber/admin" + url;
+    };
+</script>

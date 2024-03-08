@@ -1,0 +1,143 @@
+<%- contentFor('style') %> <%- contentFor('content') %>
+<div class="auth-page">
+    <div class="container-fluid p-0">
+        <div class="row g-0 align-items-center justify-content-md-center">
+            <div class="col-xxl-4 col-lg-4 col-md-6">
+                <div class="row justify-content-center g-0 auth-bg">
+                    <div class="col-xl-9">
+                        <div class="p-4">
+                            <div class="card mb-0">
+                                <div class="card-body">
+                                    <div class="auth-full-page-content rounded d-flex p-3 my-2">
+                                        <div class="w-100">
+                                            <div class="d-flex flex-column h-100">
+                                                <div class="mb-4 mb-md-5">
+                                                    <a href="/" class="d-block auth-logo">
+                                                        <img src="/assets/pc/images/h1_logo.png" alt="" height="70" class="auth-logo-dark me-start" />
+                                                    </a>
+                                                </div>
+                                                <div class="auth-content my-auto">
+                                                    <div class="form-floating form-floating-custom mb-4">
+                                                        <input type="text" class="form-control" id="input-username" placeholder="Enter User Name" />
+                                                        <label for="input-username">아이디</label>
+                                                        <div class="form-floating-icon">
+                                                            <i data-eva="people-outline"></i>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-floating form-floating-custom mb-4 auth-pass-inputgroup">
+                                                        <input type="password" class="form-control pe-5" id="password-input" placeholder="Enter Password" />
+
+                                                        <button type="button" class="btn btn-link position-absolute h-100 end-0 top-0" id="password-addon">
+                                                            <i class="mdi mdi-eye-outline font-size-18 text-muted"></i>
+                                                        </button>
+                                                        <label for="password-input">암호</label>
+                                                        <div class="form-floating-icon">
+                                                            <i data-eva="lock-outline"></i>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <button class="btn btn-primary w-100" type="button" id="btn-login">로그인</button>
+                                                    </div>
+                                                </div>
+                                                <div class="mt-4 text-center">
+                                                    <p class="mb-0">© 2024 </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- end auth full page content -->
+            </div>
+            <!-- end col -->
+        </div>
+        <!-- end row -->
+    </div>
+    <!-- end container fluid -->
+</div>
+
+<%- contentFor('script') %>
+<script src="/assets/pc/js/pages/pass-addon.init.js"></script>
+<script src="/assets/pc/js/pages/eva-icon.init.js"></script>
+
+<script>
+    const apiServer = "<%=apiServer %>";
+    let loginResultCode = "<%=resultCode %>";
+    let refer = "<%=refer %>";
+
+    document.addEventListener("DOMContentLoaded", async function () {
+        loginViewMessage();
+
+        let savedLoginId = getCookie("loginid");
+        if (savedLoginId && savedLoginId.length) {
+            document.getElementById("input-username").value = savedLoginId;
+            document.getElementById("remember-check").checked = true;
+        }
+
+        document.getElementById("input-username").addEventListener("keypress", function (e) {
+            if (e.keyCode == 13) {
+                document.getElementById("password-input").focus();
+                return false;
+            }
+        });
+
+        document.getElementById("btn-login").addEventListener("click", processLogin);
+    });
+
+    function loginViewMessage() {
+        switch (loginResultCode) {
+            case "1":
+                alert("로그인 정보가 올바르지 않습니다.");
+                break;
+            case "2":
+                alert("로그인이 처리되지 않았습니다. 잠시 후에 다시 시도해 주십시오.");
+                break;
+            case "3":
+                alert("이 사용자는 접근 권한이 없습니다.");
+                break;
+        }
+    }
+
+    async function processLogin() {
+        const loginId = document.getElementById("input-username").value;
+        const password = document.getElementById("password-input").value;
+
+        if (loginId.length == 0 || password.length == 0) {
+            alert("아이디와 암호를 입력하세요.");
+            return;
+        }
+
+        await axios
+            .post(`${apiServer}/api/auth/verify`, {
+                loginId: loginId,
+                password: password,
+            })
+            .then((response) => {
+                console.log(response);
+                if (response && response.data.result) {
+                    setCookie("xToken", response.data.data.token, { secure: true, "max-age": 3600, path: "/" });
+                    let saveCookie = `xToken=${response.data.data.token};path=/;`;
+                    document.cookie = saveCookie;
+                    // console.log(response.data.data.refer)
+                    self.location.href = refer;
+                } else if (response && !response.data.result) {
+                    if (response.data.data.code == 2) {
+                        alert("암호가 올바르지 않습니다.");
+                    } else if (response.data.data.code == 3) {
+                        alert("아이디를 찾을 수 없습니다.");
+                    } else if (response.data.data.code == 1) {
+                        alert("미승인 아이디입니다. 승인을 기다리거나 관리자에게 문의하십시오.");
+                    }
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                return false;
+            });
+    }
+</script>

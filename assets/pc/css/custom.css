@@ -1,0 +1,149 @@
+body {
+    font-family: "GmarketSansMedium",sans-serif;
+}
+
+body[data-sidebar=dark] {
+    /* background: linear-gradient( to bottom, #421c5e, #8035b7 ); */
+}
+
+body[data-sidebar=dark] .vertical-menu {
+    /* background: #421c5e; */
+    /* border-color: #501f59; */
+    border: 0px;
+}
+
+body[data-sidebar=dark] .navbar-brand-box {
+    /* background: #421c5e; */
+}
+
+body[data-sidebar=dark] .vertical-menu::before {
+    /* background-color: #421c5e ; */
+}
+
+body[data-sidebar=dark] .menu-title {
+    color: white;
+}
+
+body[data-sidebar=dark] #sidebar-menu ul li a {
+    color: white;
+    font-family: "GmarketSansMedium",sans-serif;
+}
+
+body[data-sidebar=dark] #sidebar-menu ul li a .nav-icon {
+    fill: white;
+}
+
+body[data-sidebar=dark] #sidebar-menu ul li ul.sub-menu li a {
+    color: white;
+    background-color: transparent;
+    padding-left: 4.1rem;
+}
+
+body[data-sidebar=dark] .sidebar-footer {
+    color: white;
+}
+
+@media screen and (min-width: 1024px) {
+    .hamburger-icon span {
+        background-color: white;
+    }
+}
+
+.metismenu > li > ul > li > a  {
+    font-size: 80% !important;
+}
+
+#sidebar-menu ul li ul.sub-menu li a  {
+    font-family: "GmarketSansMedium",sans-serif;
+    font-weight: 400;
+}
+
+.h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
+    font-family: "GmarketSansMedium",sans-serif;
+}
+
+.auth-bg {
+    /* background-image: url(/assets/images/bg.jpg); */
+    /* background-color: #b776f9 !important;
+    background-image: none; */
+}
+
+.auth-bg>div {
+    margin: auto;
+}
+
+.auth-carousel [data-bs-target] {
+    background-color: red;
+}
+
+.btn-kakao {
+    color: #888;
+    background-color: #ddd;
+    border-color: #ddd;
+}
+
+h4.card-title>span {
+    font-size: 90%;
+}
+
+h4.card-title>em {
+    color: red;
+}
+
+h4.card-title>span.extra-explain {
+    color: #888;
+    font-size: 10px;
+}
+
+.btn-outline-shuket-purple {
+    color: #888;
+    border-color: #eee;
+    background-color: #eee;
+}
+
+.push-icon img {
+    width: 50px;
+}
+
+.push-leaflet img {
+    width: 50px;
+}
+
+.push-message-title-box {
+    display: flex;
+    align-items: center;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.width-50px {
+    width: 50px;
+}
+
+.margin-right-10 {
+    margin-right: 10px;
+}
+
+.fs-7 {
+    font-size: .675rem!important;
+}
+
+.btn.btn-xs {
+    height: 20px;
+    padding: 0.1rem 0.5rem 0.1rem 0.5rem !important;
+    font-size: 8pt;
+}
+
+.user-profile-img .overlay-content {
+    background: none;
+}
+
+#modal-product em {
+    color: red;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
