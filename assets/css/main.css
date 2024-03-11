@@ -30,6 +30,11 @@
     width: 100%;
 }
 
+#btn-zoom{
+    position: absolute;
+    bottom: 5%;
+    left: 1%;
+}
 #btn-position{
     position: absolute;
     bottom: 5%;

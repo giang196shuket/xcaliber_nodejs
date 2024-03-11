@@ -63,7 +63,7 @@ const authRouter = require("./routers/auth");
 app.use('/', indexRouter)
 app.use("/api", apiRouter);
 app.use("/xcaliber/admin", adminRouter);
-app.use("/auth", authRouter);
+app.use("/x-cal-admin-site", authRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

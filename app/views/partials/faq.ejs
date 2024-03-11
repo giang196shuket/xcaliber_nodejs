@@ -41,7 +41,7 @@
     // assign faq list again when change category
     const result = await getFaqByCategory(currentPage, rowCount, id);
     let HTML = "";
-    if (result.count > 0) {
+    if (result && result.count > 0) {
           let num = result.count - (currentPage - 1) * rowCount;
           for (let data of result.rows) {
             HTML += `                    
@@ -65,9 +65,7 @@
                       </td>
                 </tr>`;
           }
-        }
-        
-        document.getElementById("faq-list").innerHTML = HTML;
+          document.getElementById("faq-list").innerHTML = HTML;
         let pagerHTML = createPagerHTML(
           result.count,
           rowCount,
@@ -76,7 +74,8 @@
           "changePageMain"
         );
         document.getElementById("faq-list-pager").innerHTML = pagerHTML;
-
+        }
+        
   }
 
   const getFaqByCategory = async () => {
@@ -97,48 +96,51 @@
     await axios
       .post(callApi, { page: currentPage, rowCount: rowCount })
       .then((response) => {
-        categories = response.data.data.categories // save categories  list
-        let HTML_CATE = ` <button class="btn  btn-primary" onclick={changeCategory(0)}>ALL</button> `;
-        for (let cate of response.data.data.categories) {
-          HTML_CATE += ` <button class="btn btn-info" onclick={changeCategory(${cate.id})}>${cate.name} </button>`;
-        }
-        document.getElementById("cate-faq-list").innerHTML = HTML_CATE;
+        if(response.data.result){
+            categories = response.data.data.categories // save categories  list
+            let HTML_CATE = ` <button class="btn  btn-primary" onclick={changeCategory(0)}>ALL</button> `;
+            for (let cate of response.data.data.categories) {
+              HTML_CATE += ` <button class="btn btn-info" onclick={changeCategory(${cate.id})}>${cate.name} </button>`;
+            }
+            document.getElementById("cate-faq-list").innerHTML = HTML_CATE;
 
-        let HTML = "";
-        if (response.data.data.count > 0) {
-          let num = response.data.data.count - (page - 1) * rowCount;
-          for (let data of response.data.data.rows) {
-            HTML += `                    
-                        <tr>
-                            <td style="width:20%">${data.cateName}</td>
-                            <td>
-                              <a class="active" style="cursor: pointer" data-toggle="collapse" data-target="#${data.id}" aria-expanded="true" aria-controls="${data.id}">
-                                 ${data.q}
-                              </a>
-                           </td>
-                        </tr>
-                        <tr> 
-                          <td></td>
-                          <td>
-                            <div id="${data.id}" class="collapse" aria-labelledby="headingOne" data-parent="#faq-list">
-                                <div class="card-body">
-                                    ${data.a}
-                                </div>
-                           </div>  
-                          </td>
-                        </tr>`;
-          }
-        }
+            let HTML = "";
+            if (response.data.data.count > 0) {
+              let num = response.data.data.count - (page - 1) * rowCount;
+              for (let data of response.data.data.rows) {
+                HTML += `                    
+                            <tr>
+                                <td style="width:20%">${data.cateName}</td>
+                                <td>
+                                  <a class="active" style="cursor: pointer" data-toggle="collapse" data-target="#${data.id}" aria-expanded="true" aria-controls="${data.id}">
+                                    ${data.q}
+                                  </a>
+                              </td>
+                            </tr>
+                            <tr> 
+                              <td></td>
+                              <td>
+                                <div id="${data.id}" class="collapse" aria-labelledby="headingOne" data-parent="#faq-list">
+                                    <div class="card-body">
+                                        ${data.a}
+                                    </div>
+                              </div>  
+                              </td>
+                            </tr>`;
+              }
+            }
 
-        document.getElementById("faq-list").innerHTML = HTML;
-        let pagerHTML = createPagerHTML(
-          response.data.data.count,
-          rowCount,
-          page,
-          5,
-          "changePageMain"
-        );
-        document.getElementById("faq-list-pager").innerHTML = pagerHTML;
+            document.getElementById("faq-list").innerHTML = HTML;
+            let pagerHTML = createPagerHTML(
+              response.data.data.count,
+              rowCount,
+              page,
+              5,
+              "changePageMain"
+            );
+            document.getElementById("faq-list-pager").innerHTML = pagerHTML;
+        }
+    
       })
       .catch((error) => {
         console.log(error);

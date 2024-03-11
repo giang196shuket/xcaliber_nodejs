@@ -11,7 +11,7 @@ module.exports = {
         const data = await mainModel.getAddress(area1.trim(), area2.trim());
 
         res.json({
-            result: true,
+            result: data ? true : false,
             data: data
         });
     }, 
@@ -21,7 +21,7 @@ module.exports = {
         const data = await mainModel.getArea2(area1.trim());
 
         res.json({
-            result: true,
+            result: data ? true : false,
             data: data
         });
     }, 
@@ -30,7 +30,7 @@ module.exports = {
         const data = await mainModel.getArea1();
 
         res.json({
-            result: true,
+            result: data ? true : false,
             data: data
         });
     }, 
@@ -39,7 +39,7 @@ module.exports = {
         const data = await mainModel.searchHospital(keyword.trim());
 
         res.json({
-            result: true,
+            result: data ? true : false,
             data: data
         });
     },  
@@ -47,7 +47,7 @@ module.exports = {
         const data = await mainModel.getHospitalList();
 
         res.json({
-            result: true,
+            result: data ? true : false,
             data: data
         });
     },  
@@ -57,7 +57,7 @@ module.exports = {
         const data = await mainModel.getHospitalListSearch(keyword.trim());
 
         res.json({
-            result: true,
+            result: data ? true : false,
             data: data
         });
     }, 
@@ -68,7 +68,7 @@ module.exports = {
 
         const data = await mainModel.getFaqByCategory(page, rowCount, category);
         res.json({
-            result: true,
+            result: data ? true : false,
             data: data
         });
     },  
@@ -77,7 +77,7 @@ module.exports = {
         let rowCount = req.body.rowCount;
         const data = await mainModel.getNoticeList(page, rowCount);
         res.json({
-            result: true,
+            result: data ? true : false,
             data: data
         });
     },  
@@ -87,7 +87,7 @@ module.exports = {
 
         const data = await mainModel.getFaqAndCateList(page, rowCount);
         res.json({
-            result: true,
+            result: data ? true : false,
             data: data
         });
     },  
@@ -98,7 +98,7 @@ module.exports = {
 
         const data = await mainModel.getFaqByCategory(page, rowCount, category);
         res.json({
-            result: true,
+            result: data ? true : false,
             data: data
         });
     },  

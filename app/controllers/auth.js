@@ -6,12 +6,13 @@ const authModel = require("../models/auth.js");
 
 module.exports = {
     async verify(req, res, next) {
+ 
         const token = req.cookies.xToken;
         const authData = await authService.verify(token);
-
-        if (authData && authData[0] == "xcaliber") {
+        const titleKey = require("../../config/secretKey").titleKey;
+        if (authData && authData[0] == titleKey) {
             req.user = {
-                app: authData[0],
+                app: authData[0], //title secretkey
                 seq: authData[1],
                 loginId: authData[2],
                 name: authData[3],
@@ -33,11 +34,18 @@ module.exports = {
             const result = compareSync(password, userInfo.password);
             if (result) {
                 const secretKey = require("../../config/secretKey").secretKey;
+                const titleKey = require("../../config/secretKey").titleKey;
                 const options = require("../../config/secretKey").options;
-                let accessToken = sign({ result: ["xcaliber", userInfo.id, userInfo.userid, userInfo.name, ""] }, secretKey, options);
+
+                let accessToken = sign({ result: [titleKey, userInfo.id, userInfo.userid, userInfo.name] }, secretKey, options);
                 logger.writeLog("info", `controller/login: 아이디 암호 매칭 성공 ${loginId} / ${accessToken}`);
 
-                    return res.json({
+                const resultSaveToken =  await authModel.saveToken(userInfo.id, accessToken);
+                if(!resultSaveToken){
+                    logger.writeLog("info", `controller/login: 로그인 실패 (token)  ${ userInfo.id} / ${accessToken}`);
+                }
+
+                return res.json({
                         result: true,
                         data: {
                             seq: userInfo.seq,
@@ -48,7 +56,7 @@ module.exports = {
                             refer: refer,
                         },
                     });
-
+                             
             } else {
                 logger.writeLog("info", `controller/login: 로그인 실패 (암호 매칭 실패) ${loginId} / ${password}`);
                 return res.json({
@@ -73,7 +81,7 @@ module.exports = {
 
     async redirectLogin(req, res, next) {
         if (!req.user) {
-            let loginUrl = "/auth/login?refer=" + (req.route.path != "login" ? req.originalUrl : "");
+            let loginUrl = "/x-cal-admin-site/login?refer=" + (req.route.path != "login" ? req.originalUrl : "");
             res.redirect(loginUrl);
         } else next();
     },

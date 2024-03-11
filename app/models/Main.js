@@ -12,7 +12,7 @@ module.exports = class mainModel {
         } catch (error) {
             logger.writeLog("error", `${logBase} \nStacktrace: ${error.stack}`);
 
-            return 0;
+            return [];
         }
     }
     static async getArea2(area1) {
@@ -25,7 +25,7 @@ module.exports = class mainModel {
         } catch (error) {
             logger.writeLog("error", `${logBase} \nStacktrace: ${error.stack}`);
 
-            return 0;
+            return [];
         }
     }
     static async getArea1() {
@@ -38,7 +38,7 @@ module.exports = class mainModel {
         } catch (error) {
             logger.writeLog("error", `${logBase} \nStacktrace: ${error.stack}`);
 
-            return 0;
+            return [];
         }
     }
     static async searchHospital(keyword) {
@@ -51,7 +51,7 @@ module.exports = class mainModel {
         } catch (error) {
             logger.writeLog("error", `${logBase} \nStacktrace: ${error.stack}`);
 
-            return 0;
+            return false;
         }
     }
     static async getHospitalList() {
@@ -64,7 +64,7 @@ module.exports = class mainModel {
         } catch (error) {
             logger.writeLog("error", `${logBase} \nStacktrace: ${error.stack}`);
 
-            return 0;
+            return [];
         }
     }
     static async getHospitalListSearch(keyword) {
@@ -77,14 +77,14 @@ module.exports = class mainModel {
         } catch (error) {
             logger.writeLog("error", `${logBase} \nStacktrace: ${error.stack}`);
 
-            return 0;
+            return [];
         }
     }
     static async getNoticeList( page, rowCount) {
         let logBase = `mainModel/getNoticeList: page:${page},  rowCount:${rowCount}`;
 
         try {
-            let sql = " SELECT id, board_category_id, title,created_at, updated_at FROM staging_board_content "
+            let sql = " SELECT id, board_category_id, title, external_url, created_at, updated_at FROM staging_board_content "
             let countSql = " SELECT COUNT(id) AS TOTAL_COUNT FROM staging_board_content "          
             if (parseInt(page) > 0) {
                 sql += ` LIMIT ${rowCount} OFFSET ${(page - 1) * rowCount} `;
@@ -98,7 +98,7 @@ module.exports = class mainModel {
         } catch (error) {
             logger.writeLog("error", `${logBase} \nStacktrace: ${error.stack}`);
 
-            return 0;
+            return false;
         }
     }
     static async getFaqAndCateList( page, rowCount) {
@@ -124,7 +124,7 @@ module.exports = class mainModel {
         } catch (error) {
             logger.writeLog("error", `${logBase} \nStacktrace: ${error.stack}`);
 
-            return 0;
+            return false;
         }
     }
     static async getFaqByCategory( page, rowCount, category) {
@@ -158,13 +158,11 @@ module.exports = class mainModel {
 
             const [rows] = await pool.mysqlPool.query(sql);
             const [rowsCount] = await pool.mysqlPool.query(countSql);
-
-
-            return {rows : rows, count: rowsCount[0].TOTAL_COUNT, }
+            return {rows : rows, count: rowsCount[0].TOTAL_COUNT }
         } catch (error) {
             logger.writeLog("error", `${logBase} \nStacktrace: ${error.stack}`);
 
-            return 0;
+            return false;
         }
     }
 }

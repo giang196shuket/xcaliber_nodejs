@@ -25,19 +25,17 @@
       .then((response) => {
         console.log(response.data.data);
         let HTML = "";
-        if (response.data.data.count > 0) {
+        if (response.data.data && response.data.data.count > 0) {
           let num = response.data.data.count - (page - 1) * rowCount;
           for (let data of response.data.data.rows) {
             HTML += `                    
                         <tr>
                             <th scope="row">${data.id}</th>
-                            <td>${data.title}</td>
-                            <td>${data.created_at}</td>
+                            <td><a href="${data.external_url}" target="_blank">${data.title}</a></td>
+                            <td>${moment(data.created_at).format('YYYY-MM-DD HH:mm:ss')}</td>
                         </tr>`;
           }
-        }
-
-        document.getElementById("notice-list").innerHTML = HTML;
+          document.getElementById("notice-list").innerHTML = HTML;
         let pagerHTML = createPagerHTML(
           response.data.data.count,
           rowCount,
@@ -46,6 +44,7 @@
           "changePageMain"
         );
         document.getElementById("notice-list-pager").innerHTML = pagerHTML;
+        }  
       })
       .catch((error) => {
         console.log(error);

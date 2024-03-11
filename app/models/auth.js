@@ -1,5 +1,6 @@
 const logger = require("../../config/logger");
 const pool = require("../../config/database");
+const moment = require("moment");
 
 module.exports = class authModel {
     static async getByLoginId(loginId) {
@@ -24,4 +25,18 @@ module.exports = class authModel {
             return null;
         }
     }
+        // save when login successful
+        static async saveToken(id, token) {
+            let logBase = `models/authModel.saveToken`;
+            try {
+                const time = moment().format('YYYY-MM-DD HH:mm:ss')
+                const query = ` UPDATE users SET remember_token = '${token}', join_date = '${time}' where id = '${id}'`;
+                await pool.mysqlPool.query(query);
+                return true;
+            } catch (error) {
+                logger.writeLog("error", `${logBase} \nStacktrace: ${error.stack}`);
+    
+                return false;
+            }
+        }
 };
